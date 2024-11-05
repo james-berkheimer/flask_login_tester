@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flask_login_tester"
+description = "PLACEHOLDER_DESCRIPTION"
+authors = [{name = "USERNAME", email = "USERNAME@example.com"}]
+license = {text = "MIT"}
+version = "0.1.0"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "click",
+    "colorlog",
+    "flask",
+    "flask_talisman",
+    "flask_wtf",
+    "requests",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "tox",
+    "build",
+    "pytest",
+    "coverage"
+]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.scripts]
+cmd = "flask_login_tester.main:main"
+
+[project.urls]
+homepage = "https://example.com"
+
+[tool.setuptools]
+include-package-data = true
+platforms = ["any"]
+license-files = ["LICENSE"]
+
+[tool.setuptools.packages.find]
+exclude = ["tests"]
+namespaces = true
+where = ["src"]
