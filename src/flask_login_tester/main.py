@@ -3,7 +3,8 @@ import os
 import click
 
 from .app import app
-from .plex import config_instance as plex_config
+
+# from .plex import config_instance as plex_config
 
 
 @click.command()
@@ -14,7 +15,7 @@ def main(debugger, host, port):
     os.environ["FLASK_APP"] = "flask_login_tester.app"
     os.environ["FLASK_RUN_HOST"] = host
     os.environ["FLASK_RUN_PORT"] = str(port)
-    plex_config.set_baseurl(server_ip="192.168.1.42", server_port="32400")
+    # plex_config.set_baseurl(server_ip="192.168.1.42", server_port="32400")
     if debugger:
         os.environ["FLASK_DEBUG"] = "1"
     app.run(host=host, port=port, debug=debugger)

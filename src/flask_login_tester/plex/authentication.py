@@ -7,7 +7,7 @@ This module handles authentication with the Plex API, including obtaining and ve
 """
 
 import logging
-from typing import Optional
+import xml.etree.ElementTree as ET
 
 import requests
 
@@ -32,11 +32,13 @@ class PlexAuthentication:
         """
         self.config_instance = config_instance
 
-    def fetch_plex_token(self, username: str, password: str = None, stored_token: str = None) -> str:
+    def fetch_plex_credentials(
+        self, user_login: str, password: str = None, stored_token: str = None
+    ) -> str:
         """
         Retrieve the Plex auth token using provided credentials.
 
-        :param username: Plex username.
+        :param user_login: Plex username or email address.
         :param password: Plex password.
         :return: Authentication token as a string.
         :raises AuthenticationError: If authentication fails or token is not found.
@@ -44,27 +46,30 @@ class PlexAuthentication:
         if stored_token:
             self.config_instance.token = stored_token
             return True
-        signin_url = self.config_instance.SIGNIN_URL
-        headers = self.config_instance.get_x_plex_headers()
-        data = {"user[login]": username, "user[password]": password}
+        signin_url = "https://plex.tv/api/v2/users/signin"
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        payload = f"login={user_login}&password={password}&X-Plex-Client-Identifier=PlexAPI"
 
         try:
-            response = requests.post(
-                signin_url, headers=headers, data=data, timeout=self.config_instance.TIMEOUT
-            )
+            response = requests.request("POST", signin_url, data=payload, headers=headers)
             response.raise_for_status()
+            parsed_response = ET.fromstring(response.content)
 
-            user_data = response.json()
-            if "user" in user_data and "authToken" in user_data["user"]:
-                return user_data["user"]["authToken"]
+            token = parsed_response.get("authToken")
+            user_id = parsed_response.get("id")
+            username = parsed_response.get("username")
+            user_email = parsed_response.get("email")
+            if token:
+                self.config_instance.token = token
+                return user_id, username, user_email, token
             else:
                 raise AuthenticationError("Token not found in the response.")
 
         except requests.RequestException as e:
-            logger.error(f"Failed to fetch Plex token: {e}")
+            logger.error(f"Failed to fetch Plex credentials: {e}")
             raise AuthenticationError("Authentication failed") from e
 
-    def verify_authentication(self, token: str) -> None:
+    def request_session_token(self, token: str) -> None:
         """
         Authenticate with credentials and store token in configuration.
 

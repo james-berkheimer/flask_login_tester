@@ -2,7 +2,6 @@ import os
 from datetime import timedelta
 
 from flask import Flask
-from flask_talisman import Talisman
 from flask_wtf.csrf import CSRFProtect
 
 from .routes import main
@@ -22,8 +21,6 @@ def create_app():
 
     # Apply CSRF protection and secure headers directly
     csrf.init_app(app)
-    # CSRFProtect(app)
-    # Talisman(app)
 
     # Register blueprints
     app.register_blueprint(main)

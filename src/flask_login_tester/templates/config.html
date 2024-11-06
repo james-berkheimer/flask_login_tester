@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings</title>
+</head>
+<body>
+    <h2>Verify Plex Server</h2>
+    <form method="POST" action="/save_settings">
+        <label for="hostname">Plex Server IP:</label>
+        <input type="text" id="hostname" name="hostname" required><br><br>
+        <label for="port">Port:</label>
+        <input type="text" id="port" name="port" required><br><br>
+        <label for="ssl">Use SSL:</label>
+        <input type="checkbox" id="ssl" name="ssl"><br><br>
+        <button type="button" onclick="verifyServer()">Verify</button>
+        <button type="submit">Save Settings</button>
+    </form>
+
+    <p id="responseMessage"></p>
+
+    <script>
+        function verifyServer() {
+            const hostname = document.getElementById('hostname').value;
+            const port = document.getElementById('port').value;
+            const ssl = document.getElementById('ssl').checked;
+
+            fetch('/verify_server', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ hostname, port, ssl })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('responseMessage').innerText = data.message;
+            })
+            .catch(error => {
+                document.getElementById('responseMessage').innerText = 'An error occurred: ' + error;
+            });
+        }
+    </script>
+</body>
+</html>
