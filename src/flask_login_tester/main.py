@@ -9,13 +9,18 @@ from .app import app
 
 @click.command()
 @click.option("-d", "--debugger", is_flag=True, help="Runs the server with debugger.")
-@click.option("-h", "--host", default="127.0.0.1", help="Specify the host IP address.")
-@click.option("-p", "--port", default=5090, help="Specify the port to run on.")
-def main(debugger, host, port):
+@click.option("-c", "--config", type=click.Path(exists=True), help="Path to the config file.")
+@click.option("-p", "--port", type=str, help="The port to bind to.")
+def main(debugger, config, port):
     os.environ["FLASK_APP"] = "flask_login_tester.app"
-    os.environ["FLASK_RUN_HOST"] = host
-    os.environ["FLASK_RUN_PORT"] = str(port)
-    # plex_config.set_baseurl(server_ip="192.168.1.42", server_port="32400")
     if debugger:
         os.environ["FLASK_DEBUG"] = "1"
-    app.run(host=host, port=port, debug=debugger)
+    if config:
+        os.environ["FLASK_CONFIG"] = config
+    if not port:
+        port = 5090
+
+    app.run(host="127.0.0.1", port=port, debug=debugger)
+
+
+# https://flask.palletsprojects.com/en/stable/config/

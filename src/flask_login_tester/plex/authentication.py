@@ -24,6 +24,9 @@ class AuthenticationError(Exception):
 
 
 class PlexAuthentication:
+    SIGNIN = "https://plex.tv/api/v2/users/signin"
+    SIGNOUT = "https://plex.tv/api/v2/users/signout"
+
     def __init__(self, config_instance: PlexConfig) -> None:
         """
         Initialize PlexAuthentication with a configuration instance.
@@ -31,6 +34,7 @@ class PlexAuthentication:
         :param config_instance: Instance of PlexConfig to store token and headers.
         """
         self.config_instance = config_instance
+        self._session = requests.Session()
 
     def fetch_plex_credentials(
         self, user_login: str, password: str = None, stored_token: str = None
@@ -46,12 +50,11 @@ class PlexAuthentication:
         if stored_token:
             self.config_instance.token = stored_token
             return True
-        signin_url = "https://plex.tv/api/v2/users/signin"
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         payload = f"login={user_login}&password={password}&X-Plex-Client-Identifier=PlexAPI"
 
         try:
-            response = requests.request("POST", signin_url, data=payload, headers=headers)
+            response = requests.request("POST", self.SIGNIN, data=payload, headers=headers)
             response.raise_for_status()
             parsed_response = ET.fromstring(response.content)
 
